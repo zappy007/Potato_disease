@@ -18,8 +18,8 @@ app.add_middleware(
 
 CLASS_NAMES = ["Potato___Early_blight", "Potato___Late_blight", "Potato___healthy"]
 
-# Render loads the model weights file right out of the root folder automatically
-MODEL = tf.keras.models.load_model("potatoes.h5")
+# Updated to use the native .keras model weights bundle
+MODEL = tf.keras.models.load_model("potatoes.keras")
 
 @app.get("/")
 def root():
