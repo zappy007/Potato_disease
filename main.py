@@ -17,7 +17,8 @@ app.add_middleware(
 
 CLASS_NAMES = ['Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy']
 
-MODEL = tf.keras.layers.TFSMLayer('saved_model_dir', call_endpoint='serving_default')
+# Compatible with Keras 2.15 / TF 2.15
+infer = tf.saved_model.load('saved_model_dir').signatures['serving_default']
 
 @app.get('/')
 def root():
@@ -29,7 +30,8 @@ async def predict(file: UploadFile = File(...)):
     image = Image.open(BytesIO(bytes_data)).convert('RGB').resize((256, 256))
     img_array = np.array(image, dtype=np.float32) / 255.0
     img_batch  = np.expand_dims(img_array, axis=0)
-    output      = MODEL(img_batch)
+    input_tensor = tf.constant(img_batch)
+    output = infer(input_tensor)
     predictions = list(output.values())[0].numpy()[0]
     predicted_class = CLASS_NAMES[np.argmax(predictions)]
     confidence      = float(np.max(predictions))
